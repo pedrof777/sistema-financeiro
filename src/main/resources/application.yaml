@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/financeiro_db
+    username: postgres
+    password: testando
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    br.com.pferreira.financeiroservice: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:uxY2S4STRNtKGx9q1iPwjLu2/vqWJJ0zmH0sVZ9VvaDYiVn2bo4XxlQ0d3Y0a9pC+s8W9ZFKjcAoXn7GbDNchQ==}
+  expiration: ${JWT_EXPIRATION:864500000}

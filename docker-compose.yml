@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: financeiro-service-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: financeiro_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: testando
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata_financeiro:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  pgdata_financeiro:
