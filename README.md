@@ -3,58 +3,62 @@
 Sistema de gestão financeira pessoal com isolamento completo de dados por usuário.
 Desenvolvido com **Spring Boot 3.5.15** e **Java 21**.
 
-Implementa controle de **contas bancárias**, **categorias** e **transações** com fluxo completo de autenticação JWT. Cada usuário acessa exclusivamente seus próprios dados — nenhuma query é executada sem validação de ownership, eliminando a principal vulnerabilidade de APIs multi-tenant (broken object level authorization).
+## 📋 O que o sistema faz
 
-A arquitetura segue o padrão **Controller → Service → Repository**, com separação de interfaces e implementações em todos os services, **DTOs** para isolamento das entidades JPA, **Records** (Java 17+) para imutabilidade, e **Lombok** para redução de boilerplate.
+- Controle de **contas bancárias**, **categorias** e **transações**
+- Isolamento total por usuário — nenhuma query roda sem validar ownership, 
+  eliminando a vulnerabilidade "broken object level authorization" (BOLA)
+- **Cálculo de saldo em tempo real** (`saldoInicial + receitas pagas − despesas pagas`), 
+  sem campo denormalizado — garante consistência mesmo após updates
+- Valores monetários com **BigDecimal** (precisão exata, sem erro de arredondamento)
 
-O **cálculo de saldo** é feito em tempo real (`saldoInicial + receitas pagas − despesas pagas`), sem campo denormalizado no banco — garantindo consistência absoluta mesmo após atualizações de status de transações. Todos os valores monetários utilizam **BigDecimal** para precisão exata.
+## 🏗️ Arquitetura
 
-O banco de dados é **PostgreSQL**, gerenciado via **Docker Compose** — ambiente de desenvolvimento replicável com um único comando.
+- Padrão **Controller → Service → Repository**
+- Interfaces e implementações separadas em todos os services
+- **DTOs** isolando as entidades JPA
+- **Records** (Java 17+) para imutabilidade
+- **Lombok** para reduzir boilerplate
 
-**Segurança:** Spring Security 6 com autenticação stateless (JWT), BCrypt para hash de senhas, filtro personalizado para validação de tokens em cada requisição. Todas as rotas protegidas exigem token válido; o usuário autenticado é extraído do token via `@AuthenticationPrincipal`, nunca do corpo da requisição.
+## 🔒 Segurança
 
-**Testes:** Testes unitários com JUnit 5 e Mockito cobrindo services (`ContaService`, `CategoriaService`, `TransacaoService`) e camada HTTP (`TransacaoController` via MockMvc), incluindo cenários de segurança multi-tenant e cálculo de saldo com múltiplas transações.
+- Spring Security 6 com autenticação **stateless (JWT)**
+- **BCrypt** para hash de senhas
+- Filtro personalizado validando token em cada requisição
+- Usuário autenticado extraído do token via `@AuthenticationPrincipal` 
+  (nunca do corpo da requisição — evita spoofing de identidade)
 
----
+## ✅ Testes
 
-## Tecnologias
+JUnit 5 + Mockito cobrindo:
+- Services (`ContaService`, `CategoriaService`, `TransacaoService`)
+- Camada HTTP (`TransacaoController` via MockMvc)
+- Cenários de segurança multi-tenant e cálculo de saldo com múltiplas transações
 
-- **Java 21**
-- **Spring Boot 3.5.15**
-- **Spring Security 6**
-- **Spring Data JPA**
-- **JJWT** (geração/validação de tokens)
-- **PostgreSQL** (banco de dados)
-- **Docker Compose** (ambiente do banco)
-- **Lombok**
-- **JUnit 5 + Mockito** (testes)
-- **Maven** (gerenciador de dependências)
+## 🛠️ Tecnologias
 
----
+Java 21 · Spring Boot 3.5.15 · Spring Security 6 · Spring Data JPA · JJWT · 
+PostgreSQL · Docker Compose · Lombok · JUnit 5 + Mockito · Maven
 
-## Como rodar
+## 🚀 Como rodar
 
 ### Pré-requisitos
-
 - Java 21+
 - Docker e Docker Compose
-- Maven (ou use o wrapper `./mvnw`)
+- Maven (ou `./mvnw`)
 
 ### Passos
 
 ```bash
-# 1. Clone o repositório
 git clone https://github.com/pedrof777/financeiroservice
 cd financeiroservice
 
-# 2. Suba o banco de dados PostgreSQL com Docker
+# Suba o banco PostgreSQL
 docker compose up -d
 
-# 3. Execute a aplicação
+# Execute a aplicação
 ./mvnw spring-boot:run
+```
+Aplicação disponível em `http://localhost:8080`
 
-# 4. A aplicação estará disponível em:
-http://localhost:8080
-
-# 5. Documentação interativa (Swagger):
-http://localhost:8080/swagger-ui/index.html
+Swagger: `http://localhost:8080/swagger-ui/index.html`
